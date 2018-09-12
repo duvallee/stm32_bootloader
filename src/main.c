@@ -1,21 +1,11 @@
 /*
  *  File: main.c
  *
- * COPYRIGHT(c) 2018 MICROVISION Co., Ltd.
+ * Written by duvallee.lee in 2018
  *
-*/
+ */
 
 #include "main.h"
-#include "power.h"
-#include "charger.h"
-#include "qspi_serial_flash.h"
-#include "sdram.h"
-#include "ad7616.h"
-#include "soft_timer.h"
-// #include "usb_hid_hs_device.h"
-// #include "usb_cdc_hs_device.h"
-#include "usb_bulk_hs_device.h"
-#include "app.h"
 
 
 // ==========================================================================
@@ -78,6 +68,7 @@ void ms_delay(int msec)
    }
 }
 
+#if 0
 /* --------------------------------------------------------------------------
  * Name : MPU_Config
  *
@@ -182,7 +173,7 @@ void MPU_Config(void)
    // Enable the MPU
    HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
-
+#endif
 /* --------------------------------------------------------------------------
  * Name : CPU_CACHE_Enable()
  *
@@ -315,20 +306,6 @@ void SystemClock_Config(void)
 }
 
 /* --------------------------------------------------------------------------
- * Name : _putc()
- *
- *
- * -------------------------------------------------------------------------- */
-int _putc(unsigned char ch)
-{
-#if defined(UART_DEBUG_OUTPUT)
-   return uart_debug_put(ch);
-#else
-   return(ch);
-#endif
-}
-
-/* --------------------------------------------------------------------------
  * Name : debug_break()
  *
  *
@@ -347,35 +324,17 @@ static volatile int debug_break_count                    = 0;
  *
  *
  * -------------------------------------------------------------------------- */
-static void power_on_check_timer(uint32_t* pArg)
-{
-   power_led_mode(LED_BLINK_MODE);
-   // Power on
-   power_on();
-   debug_break(100);
-}
-
-/* --------------------------------------------------------------------------
- * Name : main()
- *
- *
- * -------------------------------------------------------------------------- */
 int main(void)
 {
-#if defined(RTT_JLINK_DEBUG_OUTPUT)
-   SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-#endif
-
    // Configure the MPU attributes as Write Through
+#if 0
    MPU_Config();
+#endif
 
    CPU_CACHE_Enable();
 
    // Reset of all peripherals, Initializes the Flash interface and the Systick.
    HAL_Init();
-
-   // init timer
-   init_timer();
 
    // Configure the system clock
    SystemClock_Config();
@@ -384,49 +343,16 @@ int main(void)
    uart_debug_init();
 #endif
 
+   scheduler_init();
+
    debug_output_info("=============================================== \r\n");
    debug_output_info("%s Ver%d.%d.%d \r\n", PROGRAM_NAME, VERSION_MAIN, VERSION_MINOR, VERSION_SUB);
    debug_output_info("Build Date : %s %s (%s) \r\n", __DATE__, __TIME__, __VERSION__);
    debug_output_info("=============================================== \r\n\r\n");
 
-   // initialize irq of power switch & power hold
-   power_init();
-
-   // add power-on timer
-   add_timer(POWER_ON_CHECK_TIMER_CYCLE, 1, power_on_check_timer, NULL);
-
-   // battery fuel guage
-   battery_guage_init();
-
-#if !defined(STM32H7_DISCOVERY_BOARD)
-   // charger
-   charger_init();
-#endif
-
-   // initialize memory of QSPI
-   BSP_QSPI_Init();
-//   BSP_QSPI_EnableMemoryMappedMode();
-
-   // sdram
-   sdram_init();
-   // ad7616
-   ad7616_init();
-   // usb device init
-   usb_bulk_hs_device_init();
-
-   // qflash
-   BSP_QSPI_Init();
-
-   // later power init
-   power_later_init();
-
-   ms_delay(100);
-
-   app_init();
-
    while (1)
    {
-      schedule_process();
+      scheduler_run();
    }
 
 
@@ -443,11 +369,6 @@ void _Error_Handler(char *file, int line)
    // User can add his own implementation to report the HAL error return state
    debug_output_error("Error_Handler() Lock : %s-%d \r\n", file, line);
 
-   power_led_mode(LED_BLINK_MODE);
-   start_led_mode(LED_BLINK_MODE);
-   stop_led_mode(LED_BLINK_MODE);
-   battery_led_mode(LED_BLINK_MODE);
-
    while(1)
    {
    }
@@ -461,8 +382,8 @@ void _Error_Handler(char *file, int line)
  * -------------------------------------------------------------------------- */
 void assert_failed(uint8_t* file, uint32_t line)
 { 
-  /* User can add his own implementation to report the file name and line number,
-     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+   // User can add his own implementation to report the file name and line number,
+   // tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line)
 }
 #endif   // USE_FULL_ASSERT
 
