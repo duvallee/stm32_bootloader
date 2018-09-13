@@ -30,75 +30,146 @@
   *
   ******************************************************************************
   */
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx.h"
-#include "stm32f4xx_it.h"
+#include "main.h"
 
 // ******************************************************************************
 //            Cortex-M4 Processor Interruption and Exception Handlers
 // ******************************************************************************
+// ******************************************************************************
+//            Cortex-M4 Processor Interruption and Exception Handlers
+// ******************************************************************************
 
-// ***************************************************************************
-// Fuction      : debug_tick_timer_handler()
-// Description  : 
-// 
-//
-// ***************************************************************************
+/* --------------------------------------------------------------------------
+ * Name : NMI_Handler()
+ *        This function handles Non maskable interrupt.
+ *
+ * -------------------------------------------------------------------------- */
+void NMI_Handler(void)
+{
+}
+
+/* --------------------------------------------------------------------------
+ * Name : HardFault_Handler()
+ *        This function handles Hard fault interrupt.
+ *
+ * -------------------------------------------------------------------------- */
+void HardFault_Handler(void)
+{
+   _Error_Handler(__FILE__, __LINE__);
+}
+
+/* --------------------------------------------------------------------------
+ * Name : MemManage_Handler()
+ *        This function handles Memory management fault.
+ *
+ * -------------------------------------------------------------------------- */
+void MemManage_Handler(void)
+{
+   _Error_Handler(__FILE__, __LINE__);
+}
+
+/* --------------------------------------------------------------------------
+ * Name : BusFault_Handler()
+ *        This function handles Pre-fetch fault, memory access fault.
+ *
+ * -------------------------------------------------------------------------- */
+void BusFault_Handler(void)
+{
+   _Error_Handler(__FILE__, __LINE__);
+}
+
+/* --------------------------------------------------------------------------
+ * Name : UsageFault_Handler()
+ *        This function handles Undefined instruction or illegal state.
+ *
+ * -------------------------------------------------------------------------- */
+void UsageFault_Handler(void)
+{
+   _Error_Handler(__FILE__, __LINE__);
+}
+
+/* --------------------------------------------------------------------------
+ * Name : SVC_Handler()
+ *        This function handles System service call via SWI instruction.
+ *
+ * -------------------------------------------------------------------------- */
+void SVC_Handler(void)
+{
+}
+
+/* --------------------------------------------------------------------------
+ * Name : DebugMon_Handler()
+ *        This function handles Debug monitor.
+ *
+ * -------------------------------------------------------------------------- */
+void DebugMon_Handler(void)
+{
+}
+
+/* --------------------------------------------------------------------------
+ * Name : PendSV_Handler()
+ *        This function handles Pendable request for system service.
+ *
+ * -------------------------------------------------------------------------- */
+void PendSV_Handler(void)
+{
+}
+
+
+#if defined(SUPPORT_DEBUG_OUTPUT)
+/* --------------------------------------------------------------------------
+ * Name : debug_tick_timer_handler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 __weak void debug_tick_timer_handler()
 {
 }
+#endif
 
-// ***************************************************************************
-// Fuction      : debug_tick_timer_handler()
-// Description  : 
-// 
-//
-// ***************************************************************************
-__weak void led_tick_timer_handler()
-{
-}
-
-
-// ***************************************************************************
-// Fuction      : led_tick_timer_handler()
-// Description  : 
-// 
-//
-// ***************************************************************************
+/* --------------------------------------------------------------------------
+ * Name : SysTick_Handler()
+ *        This function handles System tick timer.
+ *
+ * -------------------------------------------------------------------------- */
 void SysTick_Handler(void)
 {
+#if defined(SUPPORT_DEBUG_OUTPUT)
+   debug_tick_timer_handler();
+#endif
+
    HAL_IncTick();
    HAL_SYSTICK_IRQHandler();
-   debug_tick_timer_handler();
-   led_tick_timer_handler();
 }
 
-// ******************************************************************************
-// STM32F4xx Peripheral Interrupt Handlers
-// Add here the Interrupt Handlers for the used peripherals
-// For the available peripheral interrupt handler names,
-// please refer to the startup file (startup_stm32f4xx.s).
-// ******************************************************************************
-
-// ***************************************************************************
-// Fuction      : USB_BULK_FS_IRQHandler()
-// Description  : 
-// 
-//
-// ***************************************************************************
-__weak void USB_BULK_FS_IRQHandler(void)
+#if defined(USE_USB)
+/* --------------------------------------------------------------------------
+ * Name : USB_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+__weak void USB_IRQHandler()
 {
 }
 
-// ***************************************************************************
-// Fuction      : OTG_FS_IRQHandler()
-// Description  : 
-// 
-//
-// ***************************************************************************
+#if defined(USE_USB_FS)
+/* --------------------------------------------------------------------------
+ * Name : OTG_FS_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
 void OTG_FS_IRQHandler(void)
+#elif defined(USE_USB_HS)
+/* --------------------------------------------------------------------------
+ * Name : OTG_HS_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void OTG_HS_IRQHandler(void)
+#endif
 {
-   USB_BULK_FS_IRQHandler();
+   USB_IRQHandler();
 }
+#endif
 
 
