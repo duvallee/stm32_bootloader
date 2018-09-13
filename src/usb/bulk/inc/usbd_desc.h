@@ -1,9 +1,9 @@
 /*
- *  File: usbd_bulk_desc.h
+ * File: usbd_bulk_desc.h
  *
- * COPYRIGHT(c) 2018 MICROVISION Co., Ltd.
+ * Written by duvallee.lee in 2018
  *
-*/
+ */
 
 #ifndef __USBD_BULK_DESC_H__
 #define __USBD_BULK_DESC_H__

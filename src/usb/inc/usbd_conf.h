@@ -1,9 +1,9 @@
 /*
- *  File: usbd_conf.h
+ * File: usbd_conf.h
  *
- * COPYRIGHT(c) 2018 MICROVISION Co., Ltd.
+ * Written by duvallee.lee in 2018
  *
-*/
+ */
 
 #ifndef __USBD_CONF_H__
 #define __USBD_CONF_H__

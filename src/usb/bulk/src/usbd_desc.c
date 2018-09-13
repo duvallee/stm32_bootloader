@@ -1,9 +1,9 @@
 /*
- *  File: usbd_bulk_desc.h
+ * File: usbd_bulk_desc.h
  *
- * COPYRIGHT(c) 2018 MICROVISION Co., Ltd.
+ * Written by duvallee.lee in 2018
  *
-*/
+ */
 
 #include "main.h"
 #include "usbd_core.h"
@@ -11,11 +11,11 @@
 
 // ===============================================================================
 #define USBD_VID                                            0x0483
-#define USBD_PID                                            0x0743
+#define USBD_PID                                            0x0401
 
 #define USBD_LANGID_STRING                                  0x0409
-#define USBD_MANUFACTURER_STRING                            "Microvision"
-#define USBD_PRODUCT_STRING                                 "Strain Guage in HS Mode"
+#define USBD_MANUFACTURER_STRING                            "duvallee"
+#define USBD_PRODUCT_STRING                                 "bootloader"
 #define USBD_SERIALNUMBER_STRING                            "000000000001"
 #define USBD_CONFIGURATION_STRING                           "Bulk Config"
 #define USBD_INTERFACE_STRING                               "Bulk Interface (subset)"
