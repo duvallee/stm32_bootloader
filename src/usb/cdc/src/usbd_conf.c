@@ -1,16 +1,11 @@
 /*
- *  File: usbd_conf.c
+ * File: usbd_conf.c
  *
- * COPYRIGHT(c) 2018 MICROVISION Co., Ltd.
+ * Written by duvallee.lee in 2018
  *
  */
 #include "main.h"
 #include "usbd_core.h"
-#include "usbd_cdc.h"
-#include "usbd_cdc_desc.h"
-#include "usb_cdc_hs_device.h"
-#include "usbd_cdc_if.h"
-
 
 // ===============================================================================
 PCD_HandleTypeDef g_usb_pcd;
@@ -19,31 +14,15 @@ PCD_HandleTypeDef g_usb_pcd;
 // *******************************************************************************
 // Interrupt Handler
 // *******************************************************************************
-
-#if defined(USE_USB_HS)
 /* --------------------------------------------------------------------------
- * Name : USB_CDC_HS_IRQHandler()
+ * Name : USB_IRQHandler()
  *
  *
  * -------------------------------------------------------------------------- */
-void USB_CDC_HS_IRQHandler(void)
+void USB_IRQHandler()
 {
    HAL_PCD_IRQHandler(&g_usb_pcd);
 }
-#elif defined(DUSE_USB_FS)
-/* --------------------------------------------------------------------------
- * Name : USB_CDC_HS_IRQHandler()
- *
- *
- * -------------------------------------------------------------------------- */
-void USB_CDC_FS_IRQHandler(void)
-{
-   HAL_PCD_IRQHandler(&g_usb_pcd);
-}
-#else
-#error "Does not defined for speed of USB"
-#endif
-
 
 // *******************************************************************************
 // LL Driver Callbacks (PCD -> USB Device Library)
@@ -219,6 +198,42 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef * hpcd)
  * -------------------------------------------------------------------------- */
 USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef* pdev)
 {
+#if defined(USE_USB_FS)
+   // Set LL Driver parameters
+   g_usb_pcd.Instance                                    = USB1_OTG_FS;
+   g_usb_pcd.Init.dev_endpoints                          = 8;
+   g_usb_pcd.Init.use_dedicated_ep1                      = 0;
+   g_usb_pcd.Init.ep0_mps                                = 0x40;
+
+   // Be aware that enabling DMA mode will result in data being sent only by
+   // multiple of 4 packet sizes. This is due to the fact that USB DMA does not
+   // allow sending data from non word-aligned addresses. For this specific
+   // application, it is advised to not enable this option unless required.
+   g_usb_pcd.Init.dma_enable                             = 0;
+   g_usb_pcd.Init.low_power_enable                       = 0;
+   g_usb_pcd.Init.lpm_enable                             = 0;
+   g_usb_pcd.Init.phy_itface                             = PCD_PHY_EMBEDDED;
+   g_usb_pcd.Init.Sof_enable                             = 0;
+   g_usb_pcd.Init.speed                                  = PCD_SPEED_FULL;
+   g_usb_pcd.Init.vbus_sensing_enable                    = 0;
+
+   // Link The driver to the stack
+   g_usb_pcd.pData                                       = pdev;
+   pdev->pData                                           = &g_usb_pcd;
+
+   // Initialize LL Driver
+   if (HAL_PCD_Init(&g_usb_pcd) != HAL_OK)
+   {
+      debug_output_error("HAL_PCD_Init() failed \r\n");
+      return USBD_FAIL;
+   }
+
+   HAL_PCDEx_SetRxFiFo(&g_usb_pcd, 0x40);
+   HAL_PCDEx_SetTxFiFo(&g_usb_pcd, 0, 0x40);
+   HAL_PCDEx_SetTxFiFo(&g_usb_pcd, 1, 0x80);
+#endif
+
+#if defined(USE_USB_HS)
    // Set LL Driver parameters
    g_usb_pcd.Instance                                    = USB1_OTG_HS;
    g_usb_pcd.Init.dev_endpoints                          = 8;
@@ -251,6 +266,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef* pdev)
    HAL_PCDEx_SetRxFiFo(&g_usb_pcd, 0x200);
    HAL_PCDEx_SetTxFiFo(&g_usb_pcd, 0, 0x80);
    HAL_PCDEx_SetTxFiFo(&g_usb_pcd, 1, 0x174);
+#endif
 
    return USBD_OK;
 }
@@ -460,9 +476,6 @@ void USBD_LL_Delay(uint32_t Delay)
 {
    HAL_Delay(Delay);
 }
-
-
-
 
 
 

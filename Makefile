@@ -11,16 +11,30 @@
 SHELL=cmd
 
 # -----------------------------------------------------------------------------
-ifeq ("$(DEBUG_DEVICE)",""NONE")
+MODEL_EXTRA_OPTIONS:=
+SYSCALL_SOURCE:=
+HAL_LIBRARY_SOURCE:=
+SYSTEM_SOURCE:=
+USB_DRIVER:=
+USER_SOURCE:=
+
+ifeq ("$(DEBUG_DEVICE)","NONE")
+MODEL_EXTRA_OPTIONS+=-USUPPORT_DEBUG_OUTPUT
 endif
 
-ifeq ("$(DEBUG_DEVICE)",""UART")
+ifeq ("$(DEBUG_DEVICE)","UART")
+MODEL_EXTRA_OPTIONS+=-DSUPPORT_DEBUG_OUTPUT -DUART_DEBUG_OUTPUT
+SYSCALL_SOURCE+=./src/syscall/printf.c ./src/syscall/uart_debug.c
 endif
 
-ifeq ("$(DEBUG_DEVICE)",""USB")
+ifeq ("$(DEBUG_DEVICE)","USB")
+MODEL_EXTRA_OPTIONS+=-DSUPPORT_DEBUG_OUTPUT -DUSB_DEBUG_OUTPUT
+SYSCALL_SOURCE+=./src/syscall/printf.c
 endif
 
-ifeq ("$(DEBUG_DEVICE)",""RTT")
+ifeq ("$(DEBUG_DEVICE)","RTT")
+MODEL_EXTRA_OPTIONS+=-DSUPPORT_DEBUG_OUTPUT -DRTT_DEBUG_OUTPUT
+SYSCALL_SOURCE+=./src/syscall/printf.c
 endif
 
 # -----------------------------------------------------------------------------
@@ -70,7 +84,7 @@ LINK_SCRIPT:=./ldscript/$(BUILD_TARGET_CHIP)/STM32F401CCUx_FLASH.ld
 STARTUP_CODE:=./startup/$(BUILD_TARGET_CHIP)/startup_stm32f401xc.s
 TARGET_PATH:=stm32f401cc
 ST_HAL_LIBRARY_PREFIX:=stm32f4xx
-MODEL_EXTRA_OPTIONS:=-DSTM32F401xC
+MODEL_EXTRA_OPTIONS+=-DSTM32F401xC -DSTM32F401CC
 endif
 
 ifeq ("$(BUILD_TARGET_CHIP)","STM32F746NG")
@@ -78,6 +92,7 @@ LINK_SCRIPT:=./ldscript/$(BUILD_TARGET_CHIP)/STM32F746NGHx_FLASH.ld
 STARTUP_CODE:=./startup/$(BUILD_TARGET_CHIP)/startup_stm32f746xx.s
 TARGET_PATH:=stm32f746ng
 ST_HAL_LIBRARY_PREFIX:=stm32f7xx
+MODEL_EXTRA_OPTIONS+=-DSTM32F746NG
 endif
 
 ifeq ("$(BUILD_TARGET_CHIP)","STM32H743XI")
@@ -85,7 +100,7 @@ LINK_SCRIPT:=./ldscript/$(BUILD_TARGET_CHIP)/stm32h7_flash.ld
 STARTUP_CODE:=./startup/$(BUILD_TARGET_CHIP)/startup_stm32h753xx.s
 TARGET_PATH:=stm32f743xi
 ST_HAL_LIBRARY_PREFIX:=stm32h7xx
-MODEL_EXTRA_OPTIONS:=-DSTM32H753xx
+MODEL_EXTRA_OPTIONS+=-DSTM32H743xx -DSTM32H743XI
 endif
 
 # -----------------------------------------------------------------------------
@@ -102,10 +117,18 @@ GCC_OPTIONS+=-D__packed=__attribute__((__packed__))
 
 ifeq ("$(BUILD_DEBUG)","DEBUG")
 GCC_OPTIONS+=-g -O0
+MODEL_EXTRA_OPTIONS+=-DDEBUG_STRING_LEVEL_ERROR
+MODEL_EXTRA_OPTIONS+=-DDEBUG_STRING_LEVEL_WARN
+MODEL_EXTRA_OPTIONS+=-DDEBUG_STRING_LEVEL_DEBUG
+MODEL_EXTRA_OPTIONS+=-DDEBUG_STRING_LEVEL_FN_TRACE
+MODEL_EXTRA_OPTIONS+=-DDEBUG_STRING_LEVEL_INFO
+MODEL_EXTRA_OPTIONS+=-DDEBUG_STRING_LEVEL_DUMP
 endif
 
 ifeq ("$(BUILD_DEBUG)","RELEASE")
 GCC_OPTIONS+=-O3
+MODEL_EXTRA_OPTIONS+=-DSUPPORT_DEBUG_OUTPUT -DRTT_DEBUG_OUTPUT
+MODEL_EXTRA_OPTIONS+=-DDEBUG_STRING_LEVEL_ERROR
 endif
 
 # -----------------------------------------------------------------------------
@@ -117,27 +140,29 @@ MODEL_OPTIONS+=$(MODEL_EXTRA_OPTIONS)
 
 # -----------------------------------------------------------------------------
 # USB Options
-ifeq ($(USB_DEVICE),"NONE")
-USB_OPTIONS:=-UUSE_USB
-USB_OPTIONS:=-UUSE_USB_BULK_DEVICE -UUSE_USB_CDC_DEVICE
+USB_OPTIONS:=
+
+ifeq ("$(USB_DEVICE)","NONE")
+USB_OPTIONS+=-UUSE_USB
+USB_OPTIONS+=-UUSE_USB_BULK_DEVICE -UUSE_USB_CDC_DEVICE
 endif
 
-ifeq ($(USB_DEVICE),"BULK")
-USB_OPTIONS:=-DUSE_USB
-USB_OPTIONS:=-DUSE_USB_BULK_DEVICE
+ifeq ("$(USB_DEVICE)","BULK")
+USB_OPTIONS+=-DUSE_USB
+USB_OPTIONS+=-DUSE_USB_BULK_DEVICE
 endif
 
-ifeq ($(USB_DEVICE),"CDC")
-USB_OPTIONS:=-DUSE_USB
-USB_OPTIONS:=-DUSE_USB_CDC_DEVICE
+ifeq ("$(USB_DEVICE)","CDC")
+USB_OPTIONS+=-DUSE_USB
+USB_OPTIONS+=-DUSE_USB_CDC_DEVICE
 endif
 
-ifeq ($(USB_SPEED),"HIGH_SPEED")
-USB_OPTIONS:=-DUSE_USB_HS
+ifeq ("$(USB_SPEED)","HIGH_SPEED")
+USB_OPTIONS+=-DUSE_USB_HS
 endif
 
-ifeq ($(USB_SPEED),"FULL_SPEED")
-USB_OPTIONS:=-DUSE_USB_FS
+ifeq ("$(USB_SPEED)","FULL_SPEED")
+USB_OPTIONS+=-DUSE_USB_FS
 endif
 
 # -----------------------------------------------------------------------------
@@ -170,17 +195,18 @@ endif
 # -----------------------------------------------------------------------------
 # C
 C_INCLUDE:=-Iinc
-C_INCLUDE:=-Iinc/$(TARGET_PATH)
+C_INCLUDE+=-Iinc/$(TARGET_PATH)
 C_INCLUDE+=-Isrc/scheduler
 
-ifeq ($(USB_DEVICE),"BULK")
+ifeq ("$(USB_DEVICE)","BULK")
 C_INCLUDE+=-IMiddlewares/ST/STM32_USB_Device_Library/Core/Inc
 C_INCLUDE+=-Isrc/usb/inc
 C_INCLUDE+=-Isrc/usb/bulk/inc
 endif
 
-ifeq ($(USB_DEVICE),"CDC")
+ifeq ("$(USB_DEVICE)","CDC")
 C_INCLUDE+=-IMiddlewares/ST/STM32_USB_Device_Library/Core/Inc
+C_INCLUDE+=-IMiddlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
 C_INCLUDE+=-Isrc/usb/inc
 C_INCLUDE+=-Isrc/usb/cdc/inc
 endif
@@ -209,36 +235,54 @@ LFLAGS+= -specs=nano.specs
 # C Source
 
 # System Source
-SYSTEM_SOURCE:=$(wildcard ./src/$(TARGET_PATH)/*.c)
+SYSTEM_SOURCE+=$(wildcard ./src/$(TARGET_PATH)/*.c)
 
 # HAL Library Source
-HAL_LIBRARY_SOURCE:=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal.c
+HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal.c
 HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_rcc.c
 HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_rcc_ex.c
 HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_gpio.c
 HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_cortex.c
-HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_uart.c
+ifeq ("$(DEBUG_DEVICE)","UART")
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_uart.c
+endif
 HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_dma.c
 HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_uart_ex.c
-
+ifeq ("$(USB_DEVICE)","BULK")
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_pcd.c
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_pcd_ex.c
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_pwr.c
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_pwr_ex.c
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_ll_usb.c
+endif
+ifeq ("$(USB_DEVICE)","CDC")
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_pcd.c
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_pcd_ex.c
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_pwr.c
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_hal_pwr_ex.c
+	HAL_LIBRARY_SOURCE+=$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/src/$(ST_HAL_LIBRARY_PREFIX)_ll_usb.c
+endif
 # USB Library Source
-ifeq ($(USB_DEVICE),"BULK")
-   USB_DRIVER:=$(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/*.c)
+ifeq ("$(USB_DEVICE)","BULK")
+   USB_DRIVER+=$(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/*.c)
+   USB_DRIVER+=./src/usb/usb_device.c
    USB_DRIVER+=$(wildcard ./src/usb/bulk/src/*.c)
 endif
 
-ifeq ($(USB_DEVICE),"CDC")
-   USB_DRIVER:=$(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/*.c)
+ifeq ("$(USB_DEVICE)","CDC")
+   USB_DRIVER+=$(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/*.c)
+   USB_DRIVER+=$(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/*.c)
+   USB_DRIVER+=./src/usb/usb_device.c
    USB_DRIVER+=$(wildcard ./src/usb/cdc/src/*.c)
 endif
 
 # User Source
-USER_SOURCE:=./src/main.c
+USER_SOURCE+=./src/main.c
 USER_SOURCE+=./src/scheduler/scheduler.c
 USER_SOURCE+= 
 
 # all C Source
-C_SRC:=$(SYSTEM_SOURCE) $(HAL_LIBRARY_SOURCE) $(USB_DRIVER) $(USER_SOURCE)
+C_SRC:=$(SYSTEM_SOURCE) $(SYSCALL_SOURCE) $(HAL_LIBRARY_SOURCE) $(USB_DRIVER) $(USER_SOURCE)
 
 # --------------------------------------------------------------------
 # ASM Source
@@ -254,21 +298,30 @@ OBJS:=$(OBJS:%.S=$(OBJECT_DIR)/%.o)
 # Build project
 # Major targets
 ###############
-all: MAKE_DEBUG $(TARGET)
+all: BEFORE_MAKE_PROCESS $(TARGET) AFTER_MAKE_PROCESS
 
-MAKE_DEBUG:
+# --------------------------------------------------------------------
+BEFORE_MAKE_PROCESS:
 	@echo $(C_SRC)
-	echo "================================================================"
+	@echo $(USB_DEVICE)
+	@echo $(USB_OPTIONS)
+	@echo ================================================================
 
+# --------------------------------------------------------------------
+AFTER_MAKE_PROCESS:
+	@echo ================================================================
+
+# --------------------------------------------------------------------
 $(TARGET): $(OBJS) 
 	$(CC) -o "$(BIN_DIR)/$(TARGET).elf" $(OBJS) $(LFLAGS)
 	$(OBJCOPY) -O ihex "$(BIN_DIR)/$(TARGET).elf" "$(BIN_DIR)/$(TARGET).hex"
 	$(OBJCOPY) -O binary "$(BIN_DIR)/$(TARGET).elf" "$(BIN_DIR)/$(TARGET).bin"
+	@echo ***************************************************************************************
 	$(SIZE) "$(BIN_DIR)/$(TARGET).elf"
+	@echo ***************************************************************************************
 
 clean:
 	$(RM) $(OBJS) "$(BIN_DIR)/$(TARGET).elf" "$(BIN_DIR)/$(TARGET).map"
-
 
 ##################
 # Implicit targets

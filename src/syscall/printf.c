@@ -13,8 +13,6 @@
 
 #include "main.h"
 
-#if defined(UART_DEBUG_OUTPUT)
-
 // ntoa conversion buffer size, this must be big enough to hold
 // one converted numeric number including padded zeros (dynamically created on stack)
 // 32 byte is a good default
@@ -808,5 +806,4 @@ int vsnprintf(char* buffer, size_t count, const char* format, va_list va)
    return _vsnprintf(_out_buffer, buffer, count, format, va);
 }
 
-#endif      // UART_DEBUG_OUTPUT
 

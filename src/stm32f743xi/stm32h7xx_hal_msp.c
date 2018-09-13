@@ -75,7 +75,7 @@ void HAL_MspInit(void)
    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-
+#if defined(USE_USB)
 /* --------------------------------------------------------------------------
  * Name : HAL_HCD_MspInit()
  *
@@ -85,7 +85,41 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
 {
    GPIO_InitTypeDef GPIO_InitStruct;
 
-   if (hpcd->Instance == USB1_OTG_HS)
+   if (hpcd->Instance == USB2_OTG_FS)
+   {
+      __HAL_RCC_GPIOA_CLK_ENABLE();
+
+      // Configure DM DP Pins
+      GPIO_InitStruct.Pin                                = (GPIO_PIN_11 | GPIO_PIN_12);
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_VERY_HIGH;
+      GPIO_InitStruct.Alternate                          = GPIO_AF10_OTG1_FS;
+      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+      // Configure VBUS Pin
+      GPIO_InitStruct.Pin                                = GPIO_PIN_9;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_INPUT;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+      // Configure ID pin
+      GPIO_InitStruct.Pin                                = GPIO_PIN_10;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_OD;
+      GPIO_InitStruct.Pull                               = GPIO_PULLUP;
+      GPIO_InitStruct.Alternate                          = GPIO_AF10_OTG1_FS;
+      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+      // Enable USB FS Clocks
+      __HAL_RCC_USB2_OTG_FS_CLK_ENABLE();
+
+      // Set USBFS Interrupt to the lowest priority
+      HAL_NVIC_SetPriority(OTG_FS_IRQn, 6, 0);
+
+      // Enable USBFS Interrupt
+      HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+   }
+   else if (hpcd->Instance == USB1_OTG_HS)
    {
       // Configure USB HS GPIOs
       __GPIOA_CLK_ENABLE();
@@ -164,13 +198,19 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
  * -------------------------------------------------------------------------- */
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef * hpcd)
 {
-   if (hpcd->Instance == USB1_OTG_HS)
+   if (hpcd->Instance == USB2_OTG_FS)
    {
-      /* Disable USB HS Clocks */
+      // Disable USB HS Clocks
+      __HAL_RCC_USB2_OTG_FS_CLK_DISABLE();
+   }
+   else if (hpcd->Instance == USB1_OTG_HS)
+   {
+      // Disable USB HS Clocks
       __HAL_RCC_USB1_OTG_HS_CLK_DISABLE();
       __HAL_RCC_USB1_OTG_HS_ULPI_CLK_DISABLE();
    }
 }
+#endif
 
 /* --------------------------------------------------------------------------
  * Name : USER_Debug_UART_MspInit()
@@ -191,8 +231,6 @@ __weak void USER_Debug_UART_MspInit(UART_HandleTypeDef *huart)
  * -------------------------------------------------------------------------- */
 void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
-   GPIO_InitTypeDef GPIO_InitStruct;
-
    if (huart->Instance == USART1)
    {
       __HAL_RCC_USART1_CLK_ENABLE();

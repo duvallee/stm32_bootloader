@@ -3,7 +3,7 @@
  *
  * Written by duvallee in 2018
  *
-*/
+ */
 #include "main.h"
 
 // ---------------------------------------------------------------------------
@@ -302,7 +302,5 @@ uint8_t get_status(uint8_t event)
    }
    return NO_EVENT_ID;
 }
-
-
 
 

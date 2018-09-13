@@ -1,9 +1,9 @@
 /*
- *  File: debug_output.h
+ * File: debug_output.h
  *
- * COPYRIGHT(c) 2018 MICROVISION Co., Ltd.
+ * Written by duvallee.lee in 2018
  *
-*/
+ */
 
 #ifndef __DEBUG_OUTPUT_H__
 #define __DEBUG_OUTPUT_H__
@@ -11,24 +11,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif 
-
-#include "printf.h"
-
-#if defined(UART_DEBUG_OUTPUT)
-#define DEBUG_STRING_LEVEL_ERROR
-#define DEBUG_STRING_LEVEL_WARN
-#define DEBUG_STRING_LEVEL_DEBUG
-#define DEBUG_STRING_LEVEL_FN_TRACE
-#define DEBUG_STRING_LEVEL_INFO
-#define DEBUG_STRING_LEVEL_DUMP
-#else
-#undef DEBUG_STRING_LEVEL_ERROR
-#undef DEBUG_STRING_LEVEL_WARN
-#undef DEBUG_STRING_LEVEL_DEBUG
-#undef DEBUG_STRING_LEVEL_FN_TRACE
-#undef DEBUG_STRING_LEVEL_INFO
-#undef DEBUG_STRING_LEVEL_DUMP
-#endif
 
 #if defined(DEBUG_STRING_LEVEL_ERROR)
 #define debug_output_error(fmt, ...)                                             \
@@ -41,7 +23,7 @@ extern "C" {
                                              ##__VA_ARGS__);                     \
                                              /* end of ... */
 #else
-#define debug_output_error(fmt, ...)         asm("nop")
+#define debug_output_error(fmt, ...)         asm("nop;")
 #endif
 
 #if defined(DEBUG_STRING_LEVEL_WARN)
@@ -55,7 +37,7 @@ extern "C" {
                                              ##__VA_ARGS__);                     \
                                              /* end of ... */
 #else
-#define debug_output_warn(fmt, ...)          asm("nop")
+#define debug_output_warn(fmt, ...)          asm("nop;")
 #endif
 
 #if defined(DEBUG_STRING_LEVEL_DEBUG)
@@ -69,7 +51,7 @@ extern "C" {
                                              ##__VA_ARGS__);                     \
                                              /* end of ... */
 #else
-#define debug_output_debug(fmt, ...)         asm("nop")
+#define debug_output_debug(fmt, ...)         asm("nop;")
 #endif
 
 #if defined(DEBUG_STRING_LEVEL_FN_TRACE)
@@ -83,7 +65,7 @@ extern "C" {
                                              ##__VA_ARGS__);                     \
                                              /* end of ... */
 #else
-#define debug_output_fn(fmt, ...)            asm("nop")
+#define debug_output_fn(fmt, ...)            asm("nop;")
 #endif
 
 #if defined(DEBUG_STRING_LEVEL_INFO)
@@ -97,7 +79,7 @@ extern "C" {
                                              ##__VA_ARGS__);                     \
                                              /* end of ... */
 #else
-#define debug_output_info(fmt, ...)          asm("nop")
+#define debug_output_info(fmt, ...)          asm("nop;")
 #endif
 
 
@@ -107,12 +89,14 @@ extern "C" {
 #define debug_output_dump(fmt, ...)          asm("nop")
 #endif
 
+#if defined(SUPPORT_DEBUG_OUTPUT)
 extern volatile unsigned int g_System_Start_Second;
 extern volatile unsigned int g_System_Start_Milli_Second;
+#endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif      // __PRINTF_H__
+#endif      // __DEBUG_OUTPUT_H__
 

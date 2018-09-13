@@ -111,7 +111,7 @@ void PendSV_Handler(void)
 }
 
 
-#if defined(UART_DEBUG_OUTPUT)
+#if defined(SUPPORT_DEBUG_OUTPUT)
 /* --------------------------------------------------------------------------
  * Name : debug_tick_timer_handler()
  *
@@ -122,8 +122,6 @@ __weak void debug_tick_timer_handler()
 }
 #endif
 
-// void debug_tick_timer_handler()
-
 /* --------------------------------------------------------------------------
  * Name : SysTick_Handler()
  *        This function handles System tick timer.
@@ -131,13 +129,42 @@ __weak void debug_tick_timer_handler()
  * -------------------------------------------------------------------------- */
 void SysTick_Handler(void)
 {
-#if defined(UART_DEBUG_OUTPUT)
+#if defined(SUPPORT_DEBUG_OUTPUT)
    debug_tick_timer_handler();
+#endif
 
    HAL_IncTick();
    HAL_SYSTICK_IRQHandler();
-#endif
 }
 
+#if defined(USE_USB)
+/* --------------------------------------------------------------------------
+ * Name : USB_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+__weak void USB_IRQHandler()
+{
+}
+
+#if defined(USE_USB_FS)
+/* --------------------------------------------------------------------------
+ * Name : OTG_FS_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void OTG_FS_IRQHandler(void)
+#elif defined(USE_USB_HS)
+/* --------------------------------------------------------------------------
+ * Name : OTG_HS_IRQHandler()
+ *
+ *
+ * -------------------------------------------------------------------------- */
+void OTG_HS_IRQHandler(void)
+#endif
+{
+   USB_IRQHandler();
+}
+#endif
 
 

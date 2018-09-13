@@ -3,7 +3,7 @@
  *
  * Written by duvallee in 2018
  *
-*/
+ */
 
 #ifndef __SCHEDULER_H__
 #define __SCHEDULER_H__
@@ -18,7 +18,6 @@ void scheduler_init();
 void scheduler_run();
 
 int add_timer(uint32_t timer_ms, uint8_t count, TIMER_FN fn);
-
 
 #ifdef __cplusplus
 }

@@ -1,13 +1,12 @@
 /*
- *  File: usbd_cdc_desc.h
+ * File: usbd_cdc_desc.h
  *
- * COPYRIGHT(c) 2018 MICROVISION Co., Ltd.
+ * Written by duvallee.lee in 2018
  *
-*/
-
+ */
 #include "main.h"
 #include "usbd_core.h"
-#include "usbd_cdc_desc.h"
+#include "usbd_desc.h"
 #include "usbd_conf.h"
 
 // ===============================================================================
@@ -24,12 +23,12 @@
 
 // ===============================================================================
 uint8_t *USBD_VCP_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t* length);
-uint8_t *USBD_VCP_LangIDStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t* length);
-uint8_t *USBD_VCP_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed,           uint16_t* length);
-uint8_t *USBD_VCP_ProductStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t* length);
-uint8_t *USBD_VCP_SerialStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t* length);
-uint8_t *USBD_VCP_ConfigStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t* length);
-uint8_t *USBD_VCP_InterfaceStrDescriptor(USBD_SpeedTypeDef speed,          uint16_t* length);
+uint8_t *USBD_VCP_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length);
+uint8_t *USBD_VCP_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length);
+uint8_t *USBD_VCP_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length);
+uint8_t *USBD_VCP_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length);
+uint8_t *USBD_VCP_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length);
+uint8_t *USBD_VCP_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length);
 #ifdef USB_SUPPORT_USER_STRING_DESC
 uint8_t *USBD_VCP_USRStringDesc(USBD_SpeedTypeDef speed, uint8_t idx, uint16_t* length);
 #endif      // USB_SUPPORT_USER_STRING_DESC
@@ -74,7 +73,7 @@ __ALIGN_BEGIN uint8_t USBD_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
 
 // USB Standard Device Descriptor
 #if defined ( __ICCARM__ )       // !< IAR Compiler
-#pragma data_alignment=4
+#pragma data_alignment                                   = 4
 #endif
 __ALIGN_BEGIN uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] __ALIGN_END =
 {
@@ -91,7 +90,7 @@ uint8_t USBD_StringSerial[USB_SIZ_STRING_SERIAL]         =
 };
 
 #if defined ( __ICCARM__ )       // !< IAR Compiler
-#pragma data_alignment=4
+#pragma data_alignment                                   = 4
 #endif
 __ALIGN_BEGIN uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
 
@@ -99,37 +98,43 @@ __ALIGN_BEGIN uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
 static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len);
 static void Get_SerialNum(void);
 
-/**
-  * @brief  Returns the device descriptor. 
-  * @param  speed: Current device speed
-  * @param  length: Pointer to data length variable
-  * @retval Pointer to descriptor buffer
-  */
+/* --------------------------------------------------------------------------
+ * Name : USBD_VCP_DeviceDescriptor()
+ *
+ * @brief  Returns the device descriptor. 
+ * @param  speed: Current device speed
+ * @param  length: Pointer to data length variable
+ * @retval Pointer to descriptor buffer
+ * -------------------------------------------------------------------------- */
 uint8_t *USBD_VCP_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t* length)
 {
    *length                                               = sizeof(USBD_DeviceDesc);
    return (uint8_t *) USBD_DeviceDesc;
 }
 
-/**
-  * @brief  Returns the LangID string descriptor.        
-  * @param  speed: Current device speed
-  * @param  length: Pointer to data length variable
-  * @retval Pointer to descriptor buffer
-  */
-uint8_t *USBD_VCP_LangIDStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t* length)
+/* --------------------------------------------------------------------------
+ * Name : USBD_VCP_LangIDStrDescriptor()
+ *
+ * @brief  Returns the LangID string descriptor.        
+ * @param  speed: Current device speed
+ * @param  length: Pointer to data length variable
+ * @retval Pointer to descriptor buffer
+ * -------------------------------------------------------------------------- */
+uint8_t *USBD_VCP_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length)
 {
    *length                                               = sizeof(USBD_LangIDDesc);
    return (uint8_t *) USBD_LangIDDesc;
 }
 
-/**
-  * @brief  Returns the product string descriptor. 
-  * @param  speed: Current device speed
-  * @param  length: Pointer to data length variable
-  * @retval Pointer to descriptor buffer
-  */
-uint8_t *USBD_VCP_ProductStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t* length)
+/* --------------------------------------------------------------------------
+ * Name : USBD_VCP_ProductStrDescriptor()
+ *
+ * @brief  Returns the product string descriptor. 
+ * @param  speed: Current device speed
+ * @param  length: Pointer to data length variable
+ * @retval Pointer to descriptor buffer
+ * -------------------------------------------------------------------------- */
+uint8_t *USBD_VCP_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length)
 {
    if (speed == 0)
    {
@@ -142,25 +147,29 @@ uint8_t *USBD_VCP_ProductStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t
    return USBD_StrDesc;
 }
 
-/**
-  * @brief  Returns the manufacturer string descriptor. 
-  * @param  speed: Current device speed
-  * @param  length: Pointer to data length variable
-  * @retval Pointer to descriptor buffer
-  */
-uint8_t *USBD_VCP_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed,           uint16_t* length)
+/* --------------------------------------------------------------------------
+ * Name : USBD_VCP_ManufacturerStrDescriptor()
+ *
+ * @brief  Returns the manufacturer string descriptor. 
+ * @param  speed: Current device speed
+ * @param  length: Pointer to data length variable
+ * @retval Pointer to descriptor buffer
+ * -------------------------------------------------------------------------- */
+uint8_t *USBD_VCP_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length)
 {
    USBD_GetString((uint8_t *) USBD_MANUFACTURER_STRING, USBD_StrDesc, length);
    return USBD_StrDesc;
 }
 
-/**
-  * @brief  Returns the serial number string descriptor.        
-  * @param  speed: Current device speed
-  * @param  length: Pointer to data length variable
-  * @retval Pointer to descriptor buffer
-  */
-uint8_t *USBD_VCP_SerialStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t* length)
+/* --------------------------------------------------------------------------
+ * Name : USBD_VCP_SerialStrDescriptor()
+ *
+ * @brief  Returns the serial number string descriptor.        
+ * @param  speed: Current device speed
+ * @param  length: Pointer to data length variable
+ * @retval Pointer to descriptor buffer
+ * -------------------------------------------------------------------------- */
+uint8_t *USBD_VCP_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length)
 {
    *length                                               = USB_SIZ_STRING_SERIAL;
 
@@ -170,13 +179,15 @@ uint8_t *USBD_VCP_SerialStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t*
    return (uint8_t *) USBD_StringSerial;
 }
 
-/**
-  * @brief  Returns the configuration string descriptor.    
-  * @param  speed: Current device speed
-  * @param  length: Pointer to data length variable
-  * @retval Pointer to descriptor buffer
-  */
-uint8_t *USBD_VCP_ConfigStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t* length)
+/* --------------------------------------------------------------------------
+ * Name : USBD_VCP_ConfigStrDescriptor()
+ *
+ * @brief  Returns the configuration string descriptor.    
+ * @param  speed: Current device speed
+ * @param  length: Pointer to data length variable
+ * @retval Pointer to descriptor buffer
+ * -------------------------------------------------------------------------- */
+uint8_t *USBD_VCP_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length)
 {
    if (speed == USBD_SPEED_HIGH)
    {
@@ -189,13 +200,15 @@ uint8_t *USBD_VCP_ConfigStrDescriptor(USBD_SpeedTypeDef speed,         uint16_t*
    return USBD_StrDesc;
 }
 
-/**
-  * @brief  Returns the interface string descriptor.        
-  * @param  speed: Current device speed
-  * @param  length: Pointer to data length variable
-  * @retval Pointer to descriptor buffer
-  */
-uint8_t *USBD_VCP_InterfaceStrDescriptor(USBD_SpeedTypeDef speed,          uint16_t* length)
+/* --------------------------------------------------------------------------
+ * Name : USBD_VCP_InterfaceStrDescriptor()
+ *
+ * @brief  Returns the interface string descriptor.        
+ * @param  speed: Current device speed
+ * @param  length: Pointer to data length variable
+ * @retval Pointer to descriptor buffer
+ * -------------------------------------------------------------------------- */
+uint8_t *USBD_VCP_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t* length)
 {
    if (speed == 0)
    {
@@ -208,11 +221,13 @@ uint8_t *USBD_VCP_InterfaceStrDescriptor(USBD_SpeedTypeDef speed,          uint1
    return USBD_StrDesc;
 }
 
-/**
-  * @brief  Create the serial number string descriptor 
-  * @param  None 
-  * @retval None
-  */
+/* --------------------------------------------------------------------------
+ * Name : Get_SerialNum()
+ *
+ * @brief  Create the serial number string descriptor 
+ * @param  None 
+ * @retval None
+ * -------------------------------------------------------------------------- */
 static void Get_SerialNum(void)
 {
    uint32_t deviceserial0, deviceserial1, deviceserial2;
@@ -230,13 +245,15 @@ static void Get_SerialNum(void)
    }
 }
 
-/**
-  * @brief  Convert Hex 32Bits value into char 
-  * @param  value: value to convert
-  * @param  pbuf: pointer to the buffer 
-  * @param  len: buffer length
-  * @retval None
-  */
+/* --------------------------------------------------------------------------
+ * Name : IntToUnicode()
+ *
+ * @brief  Convert Hex 32Bits value into char 
+ * @param  value: value to convert
+ * @param  pbuf: pointer to the buffer 
+ * @param  len: buffer length
+ * @retval None
+ * -------------------------------------------------------------------------- */
 static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len)
 {
    uint8_t idx                                           = 0;
@@ -255,4 +272,7 @@ static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len)
       pbuf[2 * idx + 1]                                  = 0;
    }
 }
+
+
+
 
