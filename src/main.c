@@ -99,7 +99,6 @@ static volatile int debug_break_count                    = 0;
 }
 #endif
 
-#define USER_POWER_KEY
 #if defined(USER_POWER_KEY)
 /* --------------------------------------------------------------------------
  * Name : power_on()

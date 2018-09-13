@@ -57,7 +57,9 @@ int usb_device_init(void)
    // Start Device Process
    USBD_Start(&gUSBD_Device);
 
+#if defined(STM32H7xx)
    HAL_PWREx_EnableUSBVoltageDetector();
+#endif
 #endif
 
 #if defined(USE_USB_BULK_DEVICE)
@@ -73,7 +75,9 @@ int usb_device_init(void)
    // Start Device Process
    USBD_Start(&gUSBD_Device);
 
+#if defined(STM32H7xx)
    HAL_PWREx_EnableUSBVoltageDetector();
+#endif
 #endif
 
    return 0;

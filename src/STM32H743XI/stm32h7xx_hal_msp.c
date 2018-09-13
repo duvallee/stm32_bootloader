@@ -213,56 +213,28 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef * hpcd)
 #endif
 
 /* --------------------------------------------------------------------------
- * Name : USER_Debug_UART_MspInit()
- *
- *
- * -------------------------------------------------------------------------- */
-#if defined(UART_DEBUG_OUTPUT)
-__weak void USER_Debug_UART_MspInit(UART_HandleTypeDef *huart)
-{
-   UNUSED(huart);
-}
-#endif
-
-/* --------------------------------------------------------------------------
  * Name : HAL_UART_MspInit()
  *
  *
  * -------------------------------------------------------------------------- */
 void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 {
+#if defined(UART_DEBUG_OUTPUT)
+   GPIO_InitTypeDef GPIO_InitStruct;
+
    if (huart->Instance == USART1)
    {
-      __HAL_RCC_USART1_CLK_ENABLE();
-
-#if defined(UART_DEBUG_OUTPUT)
-#if (UART_DEBUG_PORT == 1)
-      USER_Debug_UART_MspInit(huart);
-#endif
-#endif
-   }
-   else if (huart->Instance == USART2)
-   {
       // Peripheral clock enable
-      __HAL_RCC_USART2_CLK_ENABLE();
-#if defined(UART_DEBUG_OUTPUT)
-#if (UART_DEBUG_PORT == 2)
-      USER_Debug_UART_MspInit(huart);
-#endif
-#endif
+      __HAL_RCC_GPIOA_CLK_ENABLE();
 
+      GPIO_InitStruct.Pin                                = UART_DEBUG_RX_PIN | UART_DEBUG_TX_PIN;
+      GPIO_InitStruct.Mode                               = GPIO_MODE_AF_PP;
+      GPIO_InitStruct.Pull                               = GPIO_NOPULL;
+      GPIO_InitStruct.Speed                              = GPIO_SPEED_FREQ_LOW;
+      GPIO_InitStruct.Alternate                          = GPIO_AF7_USART1;
+      HAL_GPIO_Init(UART_DEBUG_RX_GPIO_PORT, &GPIO_InitStruct);
    }
-   else if (huart->Instance == USART3)
-   {
-      // Peripheral clock enable
-      __HAL_RCC_USART3_CLK_ENABLE();
-
-#if defined(UART_DEBUG_OUTPUT)
-#if (UART_DEBUG_PORT == 3)
-      USER_Debug_UART_MspInit(huart);
 #endif
-#endif
-   }
 }
 
 /* --------------------------------------------------------------------------
@@ -272,21 +244,13 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
  * -------------------------------------------------------------------------- */
 void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 {
+#if defined(UART_DEBUG_OUTPUT)
    if (huart->Instance == USART1)
    {
       // Peripheral clock disable
       __HAL_RCC_USART1_CLK_DISABLE();
    }
-   else if (huart->Instance == USART2)
-   {
-      // Peripheral clock disable
-      __HAL_RCC_USART2_CLK_DISABLE();
-   }
-   else if (huart->Instance == USART3)
-   {
-      // Peripheral clock disable
-      __HAL_RCC_USART3_CLK_DISABLE();
-   }
+#endif
 }
 
 
