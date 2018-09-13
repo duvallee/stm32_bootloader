@@ -12,6 +12,8 @@ extern "C" {
 #endif
 
 int usb_device_init(void);
+void usb_read(uint8_t* Buf, uint16_t Len);
+void usb_write(uint8_t* Buf, uint16_t Len);
 
 #ifdef __cplusplus
 }

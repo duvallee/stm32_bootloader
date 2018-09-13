@@ -200,7 +200,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef* pdev)
 {
 #if defined(USE_USB_FS)
    // Set LL Driver parameters
-   g_usb_pcd.Instance                                    = USB1_OTG_FS;
+   g_usb_pcd.Instance                                    = USB2_OTG_FS;
    g_usb_pcd.Init.dev_endpoints                          = 8;
    g_usb_pcd.Init.use_dedicated_ep1                      = 0;
    g_usb_pcd.Init.ep0_mps                                = 0x40;

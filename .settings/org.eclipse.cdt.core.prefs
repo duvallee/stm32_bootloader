@@ -35,7 +35,7 @@ environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/USB_DEVICE/operation=append
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/USB_DEVICE/value=CDC
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/USB_SPEED/delimiter=;
-environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/USB_SPEED/operation=append
+environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/USB_SPEED/operation=replace
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/USB_SPEED/value=HIGH_SPEED
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/append=true
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/appendContributed=true

@@ -152,6 +152,16 @@ static int8_t CDC_Itf_Control(uint8_t cmd, uint8_t * pbuf, uint16_t length)
 }
 
 /* --------------------------------------------------------------------------
+ * Name : usb_read()
+ *
+ *
+ *
+ * -------------------------------------------------------------------------- */
+__weak void usb_read(uint8_t* Buf, uint16_t Len)
+{
+}
+
+/* --------------------------------------------------------------------------
  * Name : CDC_Itf_Receive()
  *
  *
@@ -165,6 +175,7 @@ static int8_t CDC_Itf_Receive(uint8_t* Buf, uint32_t* Len)
    {
       return -1;
    }
+   usb_read(Buf, (uint16_t) *Len);
    return 0;
 }
 
