@@ -54,7 +54,7 @@ int usb_device_init(void)
  * -------------------------------------------------------------------------- */
 void usb_read(uint8_t* Buf, uint16_t Len)
 {
-#if 0    // for echo test
+#if 1    // for echo test
    usb_write(Buf, Len);
 #endif
 }
