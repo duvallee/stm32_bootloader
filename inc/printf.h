@@ -1,9 +1,9 @@
 /*
- *  File: printf.h
+ * File: printf.h
  *
- * COPYRIGHT(c) 2018 MICROVISION Co., Ltd.
+ * Written by duvallee.lee in 2018
  *
-*/
+ */
 
 #ifndef __PRINTF_H__
 #define __PRINTF_H__

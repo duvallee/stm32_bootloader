@@ -204,6 +204,7 @@ C_INCLUDE+=-Isrc/scheduler
 
 ifeq ("$(USB_DEVICE)","BULK")
 	C_INCLUDE+=-IMiddlewares/ST/STM32_USB_Device_Library/Core/Inc
+	C_INCLUDE+=-IMiddlewares/ST/STM32_USB_Device_Library/Class/BULK/Inc
 	C_INCLUDE+=-Isrc/usb/inc
 	C_INCLUDE+=-Isrc/usb/bulk/inc
 endif
@@ -269,6 +270,7 @@ endif
 # USB Library Source
 ifeq ("$(USB_DEVICE)","BULK")
    USB_DRIVER+=$(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Core/Src/*.c)
+   USB_DRIVER+=$(wildcard ./Middlewares/ST/STM32_USB_Device_Library/Class/BULK/Src/*.c)
    USB_DRIVER+=./src/usb/usb_device.c
    USB_DRIVER+=$(wildcard ./src/usb/bulk/src/*.c)
 endif

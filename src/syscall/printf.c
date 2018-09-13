@@ -1,11 +1,9 @@
 /*
- *  File: printf.c
+ * File: printf.c
  *
- * COPYRIGHT(c) 2018 MICROVISION Co., Ltd.
+ * Written by duvallee.lee in 2018
  *
-*/
-
-
+ */
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdarg.h>
