@@ -111,6 +111,9 @@ environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/DEBUG_DEVICE/delimiter=;
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/DEBUG_DEVICE/operation=replace
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/DEBUG_DEVICE/value=UART
+environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/MAVLINK/delimiter=;
+environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/MAVLINK/operation=append
+environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/MAVLINK/value=SUPPORT
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/USB_DEVICE/delimiter=;
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/USB_DEVICE/operation=append
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.2057331198/USB_DEVICE/value=CDC

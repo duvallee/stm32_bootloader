@@ -17,6 +17,7 @@ HAL_LIBRARY_SOURCE:=
 SYSTEM_SOURCE:=
 USB_DRIVER:=
 USER_SOURCE:=
+C_INCLUDE:=
 
 ifeq ("$(DEBUG_DEVICE)","NONE")
 	MODEL_EXTRA_OPTIONS+=-USUPPORT_DEBUG_OUTPUT
@@ -207,7 +208,7 @@ endif
 
 # -----------------------------------------------------------------------------
 # C
-C_INCLUDE:=-Iinc
+C_INCLUDE+=-Iinc
 C_INCLUDE+=-Iinc/$(TARGET_PATH)
 C_INCLUDE+=-Isrc/scheduler
 
@@ -223,6 +224,12 @@ ifeq ("$(USB_DEVICE)","CDC")
 	C_INCLUDE+=-IMiddlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
 	C_INCLUDE+=-Isrc/usb/inc
 	C_INCLUDE+=-Isrc/usb/cdc/inc
+endif
+
+ifeq ("$(MAVLink)","SUPPORT")
+	C_INCLUDE+=-Isrc/MAVLink
+	C_INCLUDE+=-Isrc/MAVLink/common
+	C_INCLUDE+=-Isrc/MAVLink/standard
 endif
 
 C_INCLUDE+=-I$(ST_CUBEMX_LIBRARY_PATH)/Drivers/$(ST_CUBEMX_HAL_DRIVER)/Inc 
