@@ -132,8 +132,8 @@ environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.7542525
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/BUILD_TARGET_CHIP/operation=replace
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/BUILD_TARGET_CHIP/value=STM32H743XI
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/DEBUG_DEVICE/delimiter=;
-environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/DEBUG_DEVICE/operation=append
-environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/DEBUG_DEVICE/value=UART
+environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/DEBUG_DEVICE/operation=replace
+environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/DEBUG_DEVICE/value=NONE
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/USB_DEVICE/delimiter=;
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/USB_DEVICE/operation=append
 environment/project/com.atollic.truestudio.exe.debug.toolchain.724080959.754252514.1134562867/USB_DEVICE/value=CDC

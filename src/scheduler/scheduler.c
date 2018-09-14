@@ -10,9 +10,6 @@
 #define MAX_SCHEDULER_COUNT                              1                          // max 8
 #define SCHEDULER_FLAG_SIZE                              32                         // does not modified
 
-#define INFINIT_TIMER_COUNT                              0xFF
-#define NO_EVENT_ID                                      0xFF
-
 #define RESET_EVENT_FLAG                                 0
 #define SET_EVENT_FLAG                                   1
 
@@ -38,6 +35,8 @@ typedef struct WAIT_EVENT_STRUCT
    volatile uint8_t event_flag;
    volatile uint8_t duplicate_event_flag;
    volatile uint8_t lock;
+
+   unsigned char event_name[WAIT_EVENT_NAME_LEN];
 
    uint8_t status;
    WAIT_EVENT_FN fn;
@@ -195,6 +194,7 @@ void scheduler_init()
       g_scheduler.event[i].event_flag                    = RESET_EVENT_FLAG;
       g_scheduler.event[i].duplicate_event_flag          = RESET_EVENT_FLAG;
       g_scheduler.event[i].lock                          = UNLOCK;
+      memset(g_scheduler.event[i].event_name, 0, sizeof(g_scheduler.event[i].event_name));
       g_scheduler.event[i].status                        = 0;
       g_scheduler.event[i].fn                            = NULL;
       g_scheduler.event[i].wait_ms                       = 0;
@@ -240,7 +240,7 @@ int add_timer(uint32_t timer_ms, uint8_t count, TIMER_FN fn)
 // 
 //
 // ***************************************************************************
-uint8_t add_event(uint16_t wait_ms, uint8_t status, WAIT_EVENT_FN fn)
+uint8_t add_event(uint16_t wait_ms, uint8_t status, WAIT_EVENT_FN fn, char* event_name)
 {
    unsigned char i;
    for (i = 0; i < (MAX_SCHEDULER_COUNT * SCHEDULER_FLAG_SIZE); i++)
@@ -251,6 +251,14 @@ uint8_t add_event(uint16_t wait_ms, uint8_t status, WAIT_EVENT_FN fn)
          g_scheduler.event[i].event_flag                 = RESET_EVENT_FLAG;
          g_scheduler.event[i].duplicate_event_flag       = RESET_EVENT_FLAG;
          g_scheduler.event[i].lock                       = UNLOCK;
+         if (event_name != NULL && strlen(event_name) < WAIT_EVENT_NAME_LEN)
+         {
+            memcpy(g_scheduler.event[i].event_name, event_name, strlen(event_name));
+         }
+         else
+         {
+            memset(g_scheduler.event[i].event_name, 0, sizeof(g_scheduler.event[i].event_name));
+         }
          g_scheduler.event[i].status                     = status;
          g_scheduler.event[i].fn                         = fn;
          g_scheduler.event[i].wait_ms                    = wait_ms;
@@ -283,19 +291,71 @@ uint8_t set_event(uint8_t event, uint8_t status)
    return NO_EVENT_ID;
 }
 
-
 // ***************************************************************************
-// Fuction      : get_status()
+// Fuction      : set_event_name()
 // Description  : 
 // 
 //
 // ***************************************************************************
-uint8_t get_status(uint8_t event)
+uint8_t set_event_name(char* event_name, uint8_t status)
+{
+   unsigned char i;
+
+   if (event_name == NULL || strlen(event_name) > WAIT_EVENT_NAME_LEN)
+   {
+      return NO_EVENT_ID;
+   }
+
+   for (i = 0; i < (MAX_SCHEDULER_COUNT * SCHEDULER_FLAG_SIZE); i++)
+   {
+      if (memcmp(g_scheduler.event[i].event_name, event_name, strlen(event_name)) == 0)
+      {
+         g_scheduler.event[i].event_flag                 = SET_EVENT_FLAG;
+         g_scheduler.event[i].status                     = status;
+         return (g_scheduler.event[i].event);
+      }
+   }
+   return NO_EVENT_ID;
+}
+
+
+// ***************************************************************************
+// Fuction      : get_event_status()
+// Description  : 
+// 
+//
+// ***************************************************************************
+uint8_t get_event_status(uint8_t event)
 {
    unsigned char i;
    for (i = 0; i < (MAX_SCHEDULER_COUNT * SCHEDULER_FLAG_SIZE); i++)
    {
       if (g_scheduler.event[i].event == event)
+      {
+         return (g_scheduler.event[i].status);
+      }
+   }
+   return NO_EVENT_ID;
+}
+
+// ***************************************************************************
+// Fuction      : get_event_name_status()
+// Description  : 
+// 
+//
+// ***************************************************************************
+uint8_t get_event_name_status(char* event_name)
+{
+   unsigned char i;
+
+   if (event_name == NULL || strlen(event_name) > WAIT_EVENT_NAME_LEN)
+   {
+      return NO_EVENT_ID;
+   }
+
+   for (i = 0; i < (MAX_SCHEDULER_COUNT * SCHEDULER_FLAG_SIZE); i++)
+   {
+      if (memcmp(g_scheduler.event[i].event_name, event_name, strlen(event_name)) == 0)
       {
          return (g_scheduler.event[i].status);
       }

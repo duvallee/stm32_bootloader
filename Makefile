@@ -145,6 +145,10 @@ ifeq ("$(BUILD_DEBUG)","RELEASE")
 	endif
 endif
 
+ifeq ("$(MAVLink)","SUPPORT")
+	MODEL_EXTRA_OPTIONS+=-DMAVLINK
+endif
+
 # -----------------------------------------------------------------------------
 # Model Options
 #
